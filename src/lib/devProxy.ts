@@ -8,7 +8,7 @@ export interface DevProxyConfig {
   secure: boolean
 }
 
-const DEFAULT_PROXY_PREFIX = '/api-proxy'
+const DEFAULT_PROXY_PREFIX = '/api/api-proxy'
 
 export function normalizeBaseUrl(baseUrl: string): string {
   const trimmed = baseUrl.trim()
