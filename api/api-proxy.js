@@ -48,14 +48,13 @@ export default async function handler(req, res) {
     return
   }
 
-  const pathSegments = Array.isArray(req.query.path)
-    ? req.query.path
-    : typeof req.query.path === 'string' && req.query.path
-      ? [req.query.path]
-      : []
-  const upstreamPath = pathSegments.map((segment) => encodeURIComponent(segment)).join('/')
-  const upstreamUrl = new URL(`${upstreamBaseUrl}/${upstreamPath}`)
+  const rawPath = String(req.query.path || '').replace(/^\/+/, '')
+  if (!rawPath) {
+    res.status(400).json({ error: 'Missing path query parameter.' })
+    return
+  }
 
+  const upstreamUrl = new URL(`${upstreamBaseUrl}/${rawPath}`)
   for (const [key, value] of Object.entries(req.query || {})) {
     if (key === 'path') continue
     if (Array.isArray(value)) {
@@ -79,7 +78,6 @@ export default async function handler(req, res) {
     })
 
     res.status(upstreamResponse.status)
-
     upstreamResponse.headers.forEach((value, key) => {
       if (HOP_BY_HOP_HEADERS.has(key.toLowerCase())) return
       res.setHeader(key, value)
